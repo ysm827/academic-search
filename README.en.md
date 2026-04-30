@@ -18,22 +18,18 @@
 </p>
 
 <p align="center">
-  <a href="https://github.com/ustc-ai4science/academic-search/stargazers">
-    <img src="https://img.shields.io/github/stars/ustc-ai4science/academic-search?style=social" alt="GitHub stars" />
+  <a href="https://github.com/Mingyue-Cheng/academic-search/stargazers">
+    <img src="https://img.shields.io/github/stars/Mingyue-Cheng/academic-search?style=social" alt="GitHub stars" />
   </a>
-  <a href="https://github.com/ustc-ai4science/academic-search/commits/main">
-    <img src="https://img.shields.io/github/last-commit/ustc-ai4science/academic-search" alt="last commit" />
+  <a href="https://github.com/Mingyue-Cheng/academic-search/commits/main">
+    <img src="https://img.shields.io/github/last-commit/Mingyue-Cheng/academic-search" alt="last commit" />
   </a>
-  <a href="https://github.com/ustc-ai4science/academic-search">
+  <a href="https://github.com/Mingyue-Cheng/academic-search">
     <img src="https://img.shields.io/badge/repo-GitHub-111827?logo=github" alt="repo link" />
   </a>
 </p>
 
 <p align="center"><a href="README.md">简体中文</a> | English</p>
-
-<p align="center">
-  <img src="assets/academic-search-framework.png" alt="Academic Search Skill Ecosystem" width="100%" />
-</p>
 
 academic-search skill brings academic-oriented retrieval strategy, cross-platform metadata normalization, and browser automation support to Claude Code. It is designed for paper discovery, author analysis, citation lookup, open-access PDF retrieval, BibTeX export, and structured literature comparison across multiple sources.
 
@@ -42,7 +38,7 @@ Compared with generic WebSearch and WebFetch, this skill focuses on three things
 ## Quick Start
 
 ```bash
-git clone https://github.com/ustc-ai4science/academic-search ~/.claude/skills/academic-search
+git clone https://github.com/Mingyue-Cheng/academic-search ~/.claude/skills/academic-search
 bash ~/.claude/skills/academic-search/scripts/check-deps.sh
 ```
 
@@ -52,17 +48,9 @@ Once installed, you can immediately ask Claude Code to perform an academic searc
 Search for top-venue papers on graph neural networks published after 2023, give me the top 10
 ```
 
-## News
-
-- `2026-04-05` Added CNKI support docs: search strategy, metadata schema fields, and a dedicated site pattern file
-- `2026-04-02` Released `v1.2.0`: frontier-first ranking, query expansion, direct PDF retrieval, and intent-aware two-pass search
-- `2026-04-02` Added a new case study: [Skill vs. No-Skill Search Comparison](docs/skill-usage-comparison.md)
-- `2026-04-02` Updated repository links to `ustc-ai4science/academic-search` and refreshed the README hero/content copy
-
 ## Table of Contents
 
 - [Overview](#overview)
-- [News](#news)
 - [Core Features](#core-features)
 - [Installation](#installation)
 - [Requirements](#requirements)
@@ -76,7 +64,7 @@ Search for top-venue papers on graph neural networks published after 2023, give 
 
 ## Overview
 
-- **Platform coverage**: arXiv, Semantic Scholar, Google Scholar, ACM DL, IEEE Xplore, PubMed, Papers with Code, and CNKI
+- **Platform coverage**: arXiv, Semantic Scholar, Google Scholar, ACM DL, IEEE Xplore, PubMed, and Papers with Code
 - **Operating principles**: API-first, structured-output-first, CDP only when necessary
 - **Typical tasks**: keyword search, author page parsing, citation analysis, PDF/BibTeX retrieval, and batch literature review
 - **Target users**: developers and researchers using Claude Code for academic search and research assistance
@@ -94,7 +82,7 @@ Search for top-venue papers on graph neural networks published after 2023, give 
 
 | Capability | Description |
 |-----------|-------------|
-| 8-platform coverage | arXiv / Semantic Scholar / Google Scholar / ACM DL / IEEE Xplore / PubMed / Papers with Code / CNKI |
+| 7-platform coverage | arXiv / Semantic Scholar / Google Scholar / ACM DL / IEEE Xplore / PubMed / Papers with Code |
 | API-first strategy | 6 platforms via open APIs — no browser required, fast and stable |
 | CDP browser mode | Google Scholar and other anti-bot platforms via direct Chrome connection, inheriting your login session |
 | Two-pass search | First pass outputs a lightweight summary table; second pass deep-fetches full metadata only for confirmed papers. When user specifies count ("top N"), outputs directly without waiting |
@@ -109,7 +97,7 @@ Search for top-venue papers on graph neural networks published after 2023, give 
 | Citation graph | S2 citations/references API; Google Scholar citation counts as supplement |
 | Failure signal handling | 429 / timeout / empty results each have explicit direction adjustments — no blind retries |
 | Parallel sub-agents | Independent targets dispatched to parallel sub-agents sharing one Proxy, tab-level isolation |
-| Pre-seeded site knowledge | 8 platforms ship with verified operation patterns (URL structures, selectors, known pitfalls) |
+| Pre-seeded site knowledge | 7 platforms ship with verified operation patterns (URL structures, selectors, known pitfalls) |
 
 <details>
 <summary>v1.2.0 Changes</summary>
@@ -140,13 +128,13 @@ Search for top-venue papers on graph neural networks published after 2023, give 
 **Option 1: Let Claude install it automatically**
 
 ```
-Install this skill for me: https://github.com/ustc-ai4science/academic-search
+Install this skill for me: https://github.com/Mingyue-Cheng/academic-search
 ```
 
 **Option 2: Manual**
 
 ```bash
-git clone https://github.com/ustc-ai4science/academic-search ~/.claude/skills/academic-search
+git clone https://github.com/Mingyue-Cheng/academic-search ~/.claude/skills/academic-search
 ```
 
 **Option 3: Local symlink (for development)**
@@ -234,7 +222,6 @@ Check Google Scholar for the citation count of "Attention Is All You Need"
 | ACM DL | WebFetch + Jina | No |
 | IEEE Xplore | WebFetch / Jina / Official API | No |
 | Google Scholar | CDP browser | **Yes** |
-| CNKI | CDP browser | **Yes** |
 
 ---
 
@@ -273,7 +260,7 @@ academic-search/
 │   ├── self-test.sh                  # Base local regression test (requires Chrome remote debugging)
 │   └── release-test.sh               # Pre-release regression test (concurrency / invalid target / binary response)
 └── references/
-    ├── api-cookbook.md               # 8-platform call reference (curl examples + field mappings)
+    ├── api-cookbook.md               # 7-platform API call reference (curl examples + field mappings)
     ├── metadata-schema.md            # Cross-platform unified metadata schema + dedup rules + BibTeX templates
     ├── venue-rankings.md             # CS conference/journal CCF tier reference
     ├── cdp-api.md                    # CDP Proxy HTTP API complete reference
@@ -284,8 +271,7 @@ academic-search/
         ├── dl.acm.org.md
         ├── ieeexplore.ieee.org.md
         ├── pubmed.ncbi.nlm.nih.gov.md
-        ├── paperswithcode.com.md
-        └── cnki.net.md
+        └── paperswithcode.com.md
 ```
 
 ---

@@ -8,27 +8,14 @@
 <p align="center">
   <img src="https://img.shields.io/badge/version-v1.2.0-0f766e" />
   <img src="https://img.shields.io/badge/license-MIT-1f2937" />
-  <img src="https://img.shields.io/github/stars/ustc-ai4science/academic-search?style=social" />
+  <img src="https://img.shields.io/github/stars/Mingyue-Cheng/academic-search?style=social" />
 </p>
 
 <p align="center">🌐 <a href="README.en.md">English</a> | 简体中文</p>
 
-<p align="center">
-  <img src="assets/academic-search-framework.png" alt="Academic Search Skill Ecosystem" width="100%" />
-</p>
-
 ---
 
-## News
-
-- `2026-04-05` 新增 CNKI（知网）支持文档：补充检索策略、metadata schema 字段与 site pattern 经验文件
-- `2026-04-02` 发布 `v1.2.0`：新增前沿性优先排序、Query 扩展、PDF 直取、意图感知两遍搜索
-- `2026-04-02` 新增案例文档：[使用 Skill vs 未使用 Skill 的搜索对比实验](docs/skill-usage-comparison.md)
-- `2026-04-02` 仓库链接统一切换到 `ustc-ai4science/academic-search`，README 视觉与说明同步刷新
-
----
-
-🚀 **覆盖全**：arXiv、Semantic Scholar、Google Scholar、CNKI... 八大平台火力全开。
+🚀 **覆盖全**：arXiv、Semantic Scholar、Google Scholar... 七大平台火力全开。  
 📊 **功能强**：论文检索、引用追踪、BibTeX 导出、多源去重，一气呵成。  
 📑 **获取快**：PDF 级联获取，代码实现一键直达。  
 🎯 **策略精**：时效性优先排序，自带 CCF 等级标注，只看最值得看的顶会干货。
@@ -38,7 +25,7 @@
 ## Quick Start
 
 ```bash
-git clone https://github.com/ustc-ai4science/academic-search ~/.claude/skills/academic-search
+git clone https://github.com/Mingyue-Cheng/academic-search ~/.claude/skills/academic-search
 bash ~/.claude/skills/academic-search/scripts/check-deps.sh
 ```
 
@@ -68,7 +55,7 @@ bash ~/.claude/skills/academic-search/scripts/check-deps.sh
 - 失败信号处理：429 / 超时 / 空结果各有对应调整策略，不在同一条路上盲目重试
 - CDP 浏览器模式：直连用户日常 Chrome，天然携带登录态，用于 Google Scholar 等反爬平台
 - 并行分治：多目标分发子 Agent 并行执行，共享 Proxy，tab 级隔离
-- 站点经验预置：8 个平台预置操作经验，跨 session 积累更新
+- 站点经验预置：7 个平台预置操作经验，跨 session 积累更新
 
 <details>
 <summary>v1.2.0 更新内容</summary>
@@ -98,10 +85,10 @@ bash ~/.claude/skills/academic-search/scripts/check-deps.sh
 
 ```bash
 # 方式一：手动安装
-git clone https://github.com/ustc-ai4science/academic-search ~/.claude/skills/academic-search
+git clone https://github.com/Mingyue-Cheng/academic-search ~/.claude/skills/academic-search
 
 # 方式二：让 Claude 安装
-# 帮我安装这个 skill：https://github.com/ustc-ai4science/academic-search
+# 帮我安装这个 skill：https://github.com/Mingyue-Cheng/academic-search
 
 # 方式三：本地开发软链接（在项目目录内执行）
 ln -sfn "$(pwd)" ~/.claude/skills/academic-search
@@ -116,7 +103,7 @@ ln -sfn "$(pwd)" ~/.claude/skills/academic-search
 
 ## 平台访问策略
 
-6 个平台直接调用开放 API，Google Scholar 与 CNKI 需要 Chrome 远程调试：
+6 个平台直接调用开放 API，仅 Google Scholar 需要 Chrome 远程调试：
 
 | 平台 | 访问方式 |
 |------|---------|
@@ -127,7 +114,6 @@ ln -sfn "$(pwd)" ~/.claude/skills/academic-search
 | ACM DL | WebFetch + Jina |
 | IEEE Xplore | WebFetch / Jina / 官方 API |
 | **Google Scholar** | **CDP 浏览器（需 Chrome 调试）** |
-| **CNKI（知网）** | **CDP 浏览器（需 Chrome 调试）** |
 
 ---
 
@@ -175,11 +161,11 @@ academic-search/
 │   ├── self-test.sh            # 本地回归测试
 │   └── release-test.sh         # 发布前测试
 ├── references/
-│   ├── api-cookbook.md         # 8 平台调用速查
+│   ├── api-cookbook.md         # 7 平台 API 调用速查
 │   ├── metadata-schema.md      # 跨平台统一元数据 schema
 │   ├── venue-rankings.md       # CS 会议/期刊 CCF 分级速查
 │   ├── cdp-api.md              # CDP Proxy HTTP API 完整参考
-│   └── site-patterns/          # 8 个平台的操作经验文件
+│   └── site-patterns/          # 7 个平台的操作经验文件
 └── docs/
     └── skill-usage-comparison.md  # 使用/未使用 Skill 的搜索对比实验
 ```
@@ -200,4 +186,6 @@ academic-search/
 
 ---
 
-## License MIT
+## License
+
+MIT · 作者：Mingyue Cheng

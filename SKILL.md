@@ -191,13 +191,46 @@ curl -s "https://api.semanticscholar.org/graph/v1/paper/ARXIV:{arxiv_id}?fields=
 
 ### PDF 获取
 
-按以下优先级尝试：
+按以下优先级尝试，**每步失败后才进入下一步**：
 
-1. **arXiv PDF 直链**：`externalIds.ArXiv` 存在时，**直接构造** `https://arxiv.org/pdf/{arxiv_id}`，不检查 openAccessPdf（S2 该字段经常为 null，但 arXiv PDF 实际可得）
-2. **Semantic Scholar openAccessPdf**：从 API 响应的 `openAccessPdf.url` 字段获取（作为补充，非首选）
-3. **Unpaywall**：`https://api.unpaywall.org/v2/{doi}?email=your@email.com`，返回 Open Access PDF 链接
-4. **平台页面**：通过 WebFetch 或 CDP 访问论文页，提取 PDF 下载链接
-5. **用户决定**：如以上均无法获取免费 PDF，告知用户需要机构访问权限
+1. **arXiv PDF 直链**：`externalIds.ArXiv` 存在时，直接构造 `https://arxiv.org/pdf/{arxiv_id}`（S2 的 `openAccessPdf` 字段经常为 null，但 arXiv PDF 实际可得，不依赖该字段）
+
+2. **Semantic Scholar openAccessPdf**：读取 API 响应 `openAccessPdf.url`，可作 arXiv 之外的 OA 补充
+
+3. **OpenAlex OA 检查**（有 DOI 时必须执行，不可跳过）：
+   ```bash
+   curl -s "https://api.openalex.org/works?filter=doi:{doi}&select=id,open_access,best_oa_location" \
+     -H "User-Agent: academic-search-skill/1.x (mailto:your@email.com)"
+   ```
+   响应中 `best_oa_location.pdf_url` 非 null 时直接用；`open_access.is_oa=false` 时记录并进入下一步
+
+4. **Unpaywall**（有 DOI 时必须执行）：
+   ```bash
+   curl -s "https://api.unpaywall.org/v2/{doi}?email=your@email.com"
+   ```
+   返回 `best_oa_location.url_for_pdf` 字段；`is_oa=false` 时说明出版商无授权 OA 版本
+
+5. **领域专用预印本库**（根据论文领域判断）：
+   - 地球科学 / 地质学 / 海洋 / 大气：EarthArXiv `https://eartharxiv.org/repository/search/?q={title_keywords}`
+   - 生物医学：Europe PMC `https://europepmc.org/search?query=DOI:{doi}`
+   - 物理 / 天文：INSPIRE-HEP `https://inspirehep.net/search?p=doi:{doi}`
+   - 心理 / 社科：PsyArXiv / SocArXiv
+
+6. **作者版预印本搜索**（前 5 步全失败时）：
+   WebSearch 查 `"{first_author_last_name}" "{paper_title_keywords}" filetype:pdf` 或 `site:researchgate.net`，寻找作者自存档版本
+
+7. **告知用户**：如以上均无法获取，明确说明：
+   - 该论文无公开 OA 版本（引用步骤 3/4 的检查结果作为依据）
+   - 建议通过机构图书馆、作者邮件索取、或 ILL（馆际互借）获取
+
+**Springer HTML 全文的特殊处理**：若 PDF 路由返回 HTML 而非 PDF 二进制（Content-Type 检查），说明该论文为"HTML 全文"形式（常见于 2024+ online-first 文章）。此时：
+- 记录为"HTML 全文可读，无独立 PDF"，不算获取失败
+- 返回文章 HTML 页面 URL 供用户在浏览器中阅读
+
+**Cloudflare/403 拦截处理**：Wiley、AGU/Wiley 等出版商对自动请求有强 bot 防护，CDP 浏览器模式也可能被 Cloudflare 拦截。遇到此情况：
+- 不要反复重试（会触发更严格封锁）
+- 直接跳到步骤 3（OpenAlex）和步骤 4（Unpaywall）检查是否有合法 OA 版本
+- 步骤 7 告知用户原因
 
 不要尝试访问任何需要绕过付费墙的第三方服务。
 
