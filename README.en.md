@@ -48,6 +48,14 @@ Once installed, you can immediately ask Claude Code to perform an academic searc
 Search for top-venue papers on graph neural networks published after 2023, give me the top 10
 ```
 
+## News
+
+- `2026-05-01` Added multidisciplinary guidance: discipline routing, open-access PDF status, Crossref/OpenAlex/Unpaywall foundations, and publisher access-limit handling
+- `2026-04-05` Added CNKI support docs: search strategy, metadata schema fields, and a dedicated site pattern file
+- `2026-04-02` Released `v1.2.0`: frontier-first ranking, query expansion, direct PDF retrieval, and intent-aware two-pass search
+- `2026-04-02` Added a new case study: [Skill vs. No-Skill Search Comparison](docs/skill-usage-comparison.md)
+- `2026-04-02` Refreshed the README hero/content copy
+
 ## Table of Contents
 
 - [Overview](#overview)
@@ -56,6 +64,7 @@ Search for top-venue papers on graph neural networks published after 2023, give 
 - [Requirements](#requirements)
 - [Testing](#testing)
 - [Usage Examples](#usage-examples)
+- [Multidisciplinary Usage](#multidisciplinary-usage)
 - [Platforms and Access Strategy](#platforms-and-access-strategy)
 - [CDP Proxy API](#cdp-proxy-api)
 - [Project Structure](#project-structure)
@@ -64,7 +73,7 @@ Search for top-venue papers on graph neural networks published after 2023, give 
 
 ## Overview
 
-- **Platform coverage**: arXiv, Semantic Scholar, Google Scholar, ACM DL, IEEE Xplore, PubMed, and Papers with Code
+- **Platform coverage**: arXiv, Semantic Scholar, Crossref, OpenAlex, Unpaywall, Google Scholar, ACM DL, IEEE Xplore, PubMed, Papers with Code, and CNKI
 - **Operating principles**: API-first, structured-output-first, CDP only when necessary
 - **Typical tasks**: keyword search, author page parsing, citation analysis, PDF/BibTeX retrieval, and batch literature review
 - **Target users**: developers and researchers using Claude Code for academic search and research assistance
@@ -82,8 +91,9 @@ Search for top-venue papers on graph neural networks published after 2023, give 
 
 | Capability | Description |
 |-----------|-------------|
-| 7-platform coverage | arXiv / Semantic Scholar / Google Scholar / ACM DL / IEEE Xplore / PubMed / Papers with Code |
-| API-first strategy | 6 platforms via open APIs — no browser required, fast and stable |
+| Cross-disciplinary coverage | arXiv / Semantic Scholar / Crossref / OpenAlex / Unpaywall / Google Scholar / ACM DL / IEEE Xplore / PubMed / Papers with Code / CNKI |
+| API-first strategy | Public APIs first — no browser required when a reliable API exists |
+| Discipline routing | Selects sources, query expansion, ranking, and output fields for CS/AI, biomedicine, physics/math, chemistry/materials, social science/economics, and humanities/law |
 | CDP browser mode | Google Scholar and other anti-bot platforms via direct Chrome connection, inheriting your login session |
 | Two-pass search | First pass outputs a lightweight summary table; second pass deep-fetches full metadata only for confirmed papers. When user specifies count ("top N"), outputs directly without waiting |
 | Frontier-first ranking | **Recency first** (papers from last 6 months labeled `[new]` and surfaced to top) → citation count → CCF tier (as reference only) |
@@ -91,20 +101,22 @@ Search for top-venue papers on graph neural networks published after 2023, give 
 | Venue tier labels | CS conferences/journals annotated with CCF ranking (A/B/C); ICLR labeled separately |
 | Result filtering | Filter by recency / citation count / venue tier / open PDF / code availability |
 | Structured metadata | Unified schema across all platforms; DOI as primary dedup key |
-| PDF direct link | ArXiv ID present → construct link directly; does not rely on `openAccessPdf` (often null in S2) |
+| Open-access PDF retrieval | ArXiv ID present → construct link directly; S2 / Unpaywall / repository links as legal open-access fallbacks |
+| Full-text access status | Records `open_pdf`, `needs_institution`, `no_open_pdf`, `anti_bot_blocked`, `html_not_pdf`, or `unknown` instead of treating every publisher block as a generic failure |
+| Cross-disciplinary metadata | Crossref / OpenAlex / Unpaywall supplement DOI, venue, institution, citation, and open-access status across fields |
 | BibTeX export | Platform-native export + field-assembly fallback |
 | Code availability | Papers with Code API auto-fills code column for ML papers |
 | Citation graph | S2 citations/references API; Google Scholar citation counts as supplement |
 | Failure signal handling | 429 / timeout / empty results each have explicit direction adjustments — no blind retries |
 | Parallel sub-agents | Independent targets dispatched to parallel sub-agents sharing one Proxy, tab-level isolation |
-| Pre-seeded site knowledge | 7 platforms ship with verified operation patterns (URL structures, selectors, known pitfalls) |
+| Pre-seeded site knowledge | Platform and publisher patterns capture URL structures, selectors, access limits, and known pitfalls |
 
 <details>
 <summary>v1.2.0 Changes</summary>
 
 - **Frontier-first ranking** — Recency as top priority: papers from last 6 months labeled `[new]` and surfaced first; citation count second; CCF tier as reference only
 - **Query expansion strategy** — Auto-expands to synonyms / sub-concepts / abbreviations; multi-query dedup improves recall by 30-50%
-- **PDF direct link** — ArXiv ID present → construct link directly, bypassing unreliable `openAccessPdf` field
+- **Open-access PDF link** — ArXiv ID present → construct link directly, bypassing unreliable `openAccessPdf` field
 - **Intent-aware two-pass** — When user specifies "top N papers", outputs directly without stopping to confirm
 - **Failure signal table** — 429 / timeout / empty results each map to explicit direction adjustments
 - **Success criteria definition** — Define field requirements and count before executing; used as decision anchor throughout
@@ -211,17 +223,41 @@ Check Google Scholar for the citation count of "Attention Is All You Need"
 
 ---
 
+## Multidisciplinary Usage
+
+Academic-Search now selects sources, query expansion, ranking rules, and output fields by discipline:
+
+| Discipline | Focus |
+|------------|-------|
+| CS / AI | arXiv, Semantic Scholar, ACM/IEEE, Papers with Code, CCF/top-venue labels |
+| Medicine / Life Science | PubMed, Europe PMC, MeSH, evidence ranking for systematic reviews and RCTs |
+| Physics / Mathematics | arXiv categories, MSC, NASA ADS / INSPIRE HEP path reserved |
+| Chemistry / Materials | Crossref, OpenAlex, ChemRxiv, ACS/RSC/Springer/Wiley access status |
+| Social Science / Economics | JEL, RePEc/NBER/SSRN, method type, working-paper status |
+| Humanities / Law | Books, chapters, archives, legal sources, with citation count as a secondary signal |
+
+See [Multidisciplinary Improvement Analysis](docs/multidisciplinary-improvement-analysis.md) for the planning notes behind this expansion. For systematic reviews, seminal-paper lists, open full-text checks, or discipline-specific search tasks, the skill progressively loads references from `references/disciplines/`, `references/rankings/`, `references/workflows/`, and `references/site-patterns/`.
+
+---
+
 ## Platforms and Access Strategy
 
 | Platform | Access Method | Requires Chrome Debugging |
 |----------|--------------|:------------------------:|
 | arXiv | REST API | No |
 | Semantic Scholar | REST API | No |
+| Crossref | REST API | No |
+| OpenAlex | REST API | No |
+| Unpaywall | REST API | No |
 | PubMed | NCBI E-utilities | No |
 | Papers with Code | REST API | No |
 | ACM DL | WebFetch + Jina | No |
 | IEEE Xplore | WebFetch / Jina / Official API | No |
+| ScienceDirect / Wiley / Springer / ACS | Open-access status check + institution-access notice | No |
 | Google Scholar | CDP browser | **Yes** |
+| CNKI | CDP browser | **Yes** |
+
+Full-text retrieval only uses legal open-access routes. A reachable publisher page does not mean that the PDF is downloadable; institutional entitlements, Cloudflare checks, CAPTCHA pages, or HTML responses from PDF routes are reported as access status rather than bypassed.
 
 ---
 
@@ -254,16 +290,22 @@ academic-search/
 ├── SKILL.md                          # Main instruction (search philosophy + platform matrix + capabilities)
 ├── README.md                         # Chinese README
 ├── README.en.md                      # English README (this file)
+├── docs/
+│   ├── skill-usage-comparison.md
+│   └── multidisciplinary-improvement-analysis.md
 ├── scripts/
 │   ├── cdp-proxy.mjs                 # CDP Proxy HTTP server (connects to user's Chrome)
 │   ├── check-deps.sh                 # Environment check + auto-start Proxy
 │   ├── self-test.sh                  # Base local regression test (requires Chrome remote debugging)
 │   └── release-test.sh               # Pre-release regression test (concurrency / invalid target / binary response)
 └── references/
-    ├── api-cookbook.md               # 7-platform API call reference (curl examples + field mappings)
+    ├── api-cookbook.md               # Multi-platform call reference (curl examples + field mappings)
     ├── metadata-schema.md            # Cross-platform unified metadata schema + dedup rules + BibTeX templates
     ├── venue-rankings.md             # CS conference/journal CCF tier reference
     ├── cdp-api.md                    # CDP Proxy HTTP API complete reference
+    ├── disciplines/                  # Discipline routing and query expansion profiles
+    ├── rankings/                     # Non-CS evidence/source ranking references
+    ├── workflows/                    # Systematic review and literature workflow templates
     └── site-patterns/
         ├── arxiv.org.md
         ├── semanticscholar.org.md
@@ -271,7 +313,12 @@ academic-search/
         ├── dl.acm.org.md
         ├── ieeexplore.ieee.org.md
         ├── pubmed.ncbi.nlm.nih.gov.md
-        └── paperswithcode.com.md
+        ├── paperswithcode.com.md
+        ├── cnki.net.md
+        ├── sciencedirect.com.md
+        ├── onlinelibrary.wiley.com.md
+        ├── link.springer.com.md
+        └── pubs.acs.org.md
 ```
 
 ---
@@ -287,7 +334,7 @@ academic-search/
 - **Structured output**: All results converted to a unified schema, DOI as dedup key, directly exportable as BibTeX
 
 📋 **Case Study**: [Skill vs. No-Skill Search Comparison](docs/skill-usage-comparison.md) — A controlled experiment searching "Time Series Agent" papers with and without the skill, documenting execution paths, result differences, and key takeaways.
-- **Site knowledge reuse**: 7 platforms ship with pre-seeded operation experience; accumulated and updated across sessions
+- **Site knowledge reuse**: platform and publisher operation experience ships pre-seeded and can be updated across sessions
 
 ---
 
