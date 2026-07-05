@@ -271,4 +271,18 @@ academic-search/
 
 ## License
 
-MIT · 作者：Mingyue Cheng
+MIT · 作者：[Mingyue Cheng](https://mingyue-cheng.github.io/)
+
+---
+
+## Star History
+
+<p align="center">
+  <a href="https://www.star-history.com/?repos=ustc-ai4science%2Facademic-search&amp;type=date&amp;legend=top-left">
+    <picture>
+      <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/svg?repos=ustc-ai4science/academic-search&amp;type=Date&amp;theme=dark" />
+      <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/svg?repos=ustc-ai4science/academic-search&amp;type=Date" />
+      <img alt="Star History Chart" src="https://api.star-history.com/svg?repos=ustc-ai4science/academic-search&amp;type=Date" />
+    </picture>
+  </a>
+</p>
