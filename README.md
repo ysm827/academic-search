@@ -11,6 +11,8 @@
   <img src="https://img.shields.io/github/stars/Mingyue-Cheng/academic-search?style=social" />
 </p>
 
+<p align="center">📈 <a href="https://www.star-history.com/?repos=ustc-ai4science%2Facademic-search&type=date&legend=top-left">Star History</a></p>
+
 <p align="center">🌐 <a href="README.en.md">English</a> | 简体中文</p>
 
 ---
